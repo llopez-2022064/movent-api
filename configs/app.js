@@ -15,7 +15,7 @@ app.use(cors())
 app.use(helmet())
 app.use(morgan('dev'))
 
-app.use('/users', userRoutes)
+app.use('/api/v1/users', userRoutes)
 
 export const initServer = () => {
     app.listen(port, () => {
