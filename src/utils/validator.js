@@ -11,14 +11,16 @@ export const verifyEmail = (email) => {
 
 export const validateFieldIsEmpty = (data, fields) => {
     for (let field of fields) {
-        if (!data[field] || !data[field].toString().trim()) {
-            return { valid: false, field }
+        if (data.hasOwnProperty(field)) {
+            if (!data[field] || !data[field].toString().trim()) {
+                return { valid: false, field }
+            }
         }
     }
     return { valid: true }
 }
 
-export const encrypt = async(password) => {
+export const encrypt = async (password) => {
     try {
         return hash(password, 10)
     } catch (error) {
@@ -26,7 +28,7 @@ export const encrypt = async(password) => {
     }
 }
 
-export const checkPassword = async(password, hash) => {
+export const checkPassword = async (password, hash) => {
     try {
         return await compare(password, hash)
     } catch (error) {
