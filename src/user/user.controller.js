@@ -63,3 +63,35 @@ export const login = async (req, res) => {
         return res.status(500).send({ msg: 'Error logging in' })
     }
 }
+
+export const updateUser = async (req, res) => {
+    try {
+        let { id } = req.params
+        let userId = req.user.id
+        let data = req.body
+        let { oldPassword, newPassword } = req.body
+
+        if (id !== userId) return res.status(403).send({ msg: 'Unauthorized' })
+
+        if (oldPassword && newPassword) {
+            let passwordCorrect = await checkPassword(oldPassword)
+            if (!passwordCorrect) return res.status(400).send({ msg: 'Old password incorrect' })
+            data.password = await encrypt(newPassword)
+        }
+
+        let { valid, field } = validateFieldIsEmpty(data, ['name', 'lastName', 'email', 'password'])
+        if (!valid) return res.status(400).send({ msg: `${field} is empty` })
+
+        let user = await User.findOneAndUpdate(
+            { _id: id },
+            data,
+            { new: true }
+        ).select('-password')
+        if (!user) return res.status(404).send({ msg: 'User not found and not updated' })
+
+        return res.status(201).send({ msg: 'Update successful', user })
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send({ msg: 'Error updating user' })
+    }
+}
