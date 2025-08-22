@@ -15,6 +15,6 @@ export const validateJwt = async (req, res, next) => {
         next()
     } catch (error) {
         console.error(error)
-        return resizeBy.status(401).send({ msg: 'Unauthorized' })
+        return res.status(401).send({ msg: 'Unauthorized' })
     }
 }
