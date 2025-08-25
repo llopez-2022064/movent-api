@@ -43,7 +43,7 @@ export const updateCategory = async (req, res) => {
         let { valid, field } = validateFieldIsEmpty(data, ['name'])
         if (!valid) return res.status(400).send({ msg: '${field} is required' })
 
-        let existsCategory = await Category.findOne({ name: data.name, user: userId, _id: { $ne: id} })
+        let existsCategory = await Category.findOne({ name: data.name, user: userId, _id: { $ne: id } })
         if (existsCategory) return res.status(400).send({ msg: 'There is already a category with the same name' })
 
         let categoryUpdate = await Category.findOneAndUpdate(
@@ -56,5 +56,22 @@ export const updateCategory = async (req, res) => {
     } catch (error) {
         console.error(error)
         return res.status(500).send({ msg: 'Error updating category' })
+    }
+}
+
+export const getCategories = async (req, res) => {
+    try {
+        let user = req.user
+
+        let existsUser = await User.findOne({ _id: user.id })
+        if (!existsUser) return res.status(404).send({ msg: 'User not found' })
+
+        let categories = await Category.find({ user: user.id }).populate('user', 'name email')
+        if (categories.length === 0) return res.status(404).send({ msg: 'There are no categories' })
+
+        return res.status(200).send({ categories })
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send({ msg: 'Error listing categories' })
     }
 }
