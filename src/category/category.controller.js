@@ -75,3 +75,18 @@ export const getCategories = async (req, res) => {
         return res.status(500).send({ msg: 'Error listing categories' })
     }
 }
+
+export const deleteCategory = async (req, res) => {
+    try {
+        let { id } = req.params
+        let user = req.user
+
+        let category = await Category.findOneAndDelete({ _id: id, user: user.id })
+        if (!category) return res.status(404).send({ msg: 'Category not found' })
+
+        return res.status(200).send({ msg: 'Category successfully deleted' })
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send({ msg: 'Error deleting category' })
+    }
+}
