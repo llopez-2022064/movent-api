@@ -116,3 +116,17 @@ export const updatePassword = async (req, res) => {
         return res.status(500).send({ msg: 'Error updating password' })
     }
 }
+
+export const profile = async (req, res) => {
+    try {
+        let userId = req.user.id
+
+        let user = await User.findById(userId).select('-password')
+        if (!user) return res.status(404).send({ msg: 'Profile not found' })
+
+        return res.status(200).send({ user })
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send({ msg: 'Error obtaining profile' })
+    }
+}
