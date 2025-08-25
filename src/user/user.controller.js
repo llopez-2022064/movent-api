@@ -12,7 +12,7 @@ export const updateUser = async (req, res) => {
 
         if (id !== userId) return res.status(403).send({ msg: 'Unauthorized' })
 
-        let { valid, field } = validateFieldIsEmpty(data, ['name', 'lastName', 'email', 'password'])
+        let { valid, field } = validateFieldIsEmpty(data, ['name', 'lastName', 'email'])
         if (!valid) return res.status(400).send({ msg: `${field} is empty` })
 
         let user = await User.findOneAndUpdate(
@@ -22,7 +22,7 @@ export const updateUser = async (req, res) => {
         ).select('-password')
         if (!user) return res.status(404).send({ msg: 'User not found and not updated' })
 
-        return res.status(201).send({ msg: 'Update successful', user })
+        return res.status(200).send({ msg: 'Update successful', user })
     } catch (error) {
         console.error(error)
         return res.status(500).send({ msg: 'Error updating user' })

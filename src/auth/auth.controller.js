@@ -23,7 +23,7 @@ export const register = async (req, res) => {
         let user = new User(data)
         await user.save()
 
-        return res.send({ msg: 'Registered successfully' })
+        return res.status(201).send({ msg: 'Registered successfully' })
     } catch (error) {
         console.error(error)
         return res.status(500).send({ msg: 'Error registering user' })
@@ -57,7 +57,7 @@ export const login = async (req, res) => {
             })
         }
 
-        return res.status(404).send({ msg: 'Invalid credentials' })
+        return res.status(401).send({ msg: 'Invalid credentials' })
     } catch (error) {
         console.error(error)
         return res.status(500).send({ msg: 'Error logging in' })
