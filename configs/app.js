@@ -4,6 +4,7 @@ import helmet from 'helmet'
 import morgan from 'morgan'
 import { config } from 'dotenv'
 import userRoutes from '../src/user/user.routes.js'
+import authRoutes from '../src/auth/auth.routes.js'
 
 const app = express()
 config()
@@ -15,6 +16,7 @@ app.use(cors())
 app.use(helmet())
 app.use(morgan('dev'))
 
+app.use('/api/v1/auth', authRoutes)
 app.use('/api/v1/users', userRoutes)
 
 export const initServer = () => {
