@@ -5,7 +5,7 @@ import express from 'express'
 const api = express.Router()
 
 api.put('/:id', [validateJwt], updateUser)
-api.patch('/:id', [validateJwt], updatePassword)
+api.patch('/', [validateJwt], updatePassword)
 api.get('/profile', [validateJwt], getProfile)
 
 export default api

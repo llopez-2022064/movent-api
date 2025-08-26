@@ -1,22 +1,18 @@
 'use strict'
 
-import { generateToken } from '../utils/generateToken.js'
 import { encrypt, validateFieldIsEmpty, verifyEmail, checkPassword } from '../utils/validator.js'
 import User from './user.model.js'
 
 export const updateUser = async (req, res) => {
     try {
-        let { id } = req.params
         let userId = req.user.id
         let data = req.body
-
-        if (id !== userId) return res.status(403).send({ msg: 'Unauthorized' })
 
         let { valid, field } = validateFieldIsEmpty(data, ['name', 'lastName', 'email'])
         if (!valid) return res.status(400).send({ msg: `${field} is empty` })
 
         let user = await User.findOneAndUpdate(
-            { _id: id },
+            { _id: userId },
             data,
             { new: true }
         ).select('-password')
@@ -31,11 +27,8 @@ export const updateUser = async (req, res) => {
 
 export const updatePassword = async (req, res) => {
     try {
-        let { id } = req.params
         let { oldPassword, newPassword, confirmPassword } = req.body
         let user = req.user
-
-        if (user.id !== id) return res.status(403).send({ msg: 'Unauthorized' })
 
         let { valid, field } = validateFieldIsEmpty(req.body, ['oldPassword', 'newPassword', 'confirmPassword'])
         if (!valid) return res.status(400).send({ msg: `${field} is empty` })
