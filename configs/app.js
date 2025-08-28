@@ -6,12 +6,13 @@ import { config } from 'dotenv'
 import userRoutes from '../src/user/user.routes.js'
 import authRoutes from '../src/auth/auth.routes.js'
 import categoryRoutes from '../src/category/category.routes.js'
+import accountRoutes from '../src/account/account.routes.js'
 
 const app = express()
 config()
 const port = process.env.PORT || 3200
 
-app.use(express.urlencoded({extended: false}))
+app.use(express.urlencoded({ extended: false }))
 app.use(express.json())
 app.use(cors())
 app.use(helmet())
@@ -20,6 +21,7 @@ app.use(morgan('dev'))
 app.use('/api/v1/auth', authRoutes)
 app.use('/api/v1/users', userRoutes)
 app.use('/api/v1/categories', categoryRoutes)
+app.use('/api/v1/accounts', accountRoutes)
 
 export const initServer = () => {
     app.listen(port, () => {
