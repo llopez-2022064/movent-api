@@ -6,13 +6,18 @@ export const addAccount = async (req, res) => {
         let data = req.body
         let user = req.user
 
+        let existsAccountName = await Account.findOne({ name: data.name, _id: { $ne: id } })
+        if (existsAccountName) return res.status(400).send({ msg: 'There is already an account with that name' })
+
         let accounts = await Account.find({ user: user.id })
         if (accounts.length == 5) return res.status(409).send({ msg: 'You can only have a maximum of 5 accounts' })
 
         let { valid, field } = validateFieldIsEmpty(data, ['name', 'category', 'user'])
         if (!valid) return res.status(400).send({ msg: `${field} is required` })
 
-        if (!isNumber(data.openingBalance)) return res.status(400).send({ msg: 'The amount entered is incorrect.' })
+        if (data.openingBalance !== undefined && !isNumber(data.openingBalance)) {
+            return res.status(400).send({ msg: 'The amount entered is incorrect.' });
+        }
 
         let account = new Account({ ...data, user: user.id })
         await account.save()
