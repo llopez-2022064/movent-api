@@ -76,3 +76,17 @@ export const deleteAccount = async (req, res) => {
         return res.status(500).send({ msg: 'Error deleting an account' })
     }
 }
+
+export const getAccounts = async (req, res) => {
+    try {
+        let user = req.user
+
+        let accounts = await Account.find({ user: user.id })
+        if (accounts.length == 0) return res.status(404).send({ msg: 'There are no accounts' })
+
+        return res.status(200).send({ accounts })
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send({ msg: 'Error retrieving accounts' })
+    }
+}
