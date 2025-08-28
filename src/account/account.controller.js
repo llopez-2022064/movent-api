@@ -48,11 +48,12 @@ export const updateAccount = async (req, res) => {
         let { valid, field } = validateFieldIsEmpty(data, ['name', 'category'])
         if (!valid) return res.status(400).send({ msg: `${field} is required` })
 
-        let accountUpdate = await Account.findByIdAndUpdate(
-            { _id: id },
+        let accountUpdate = await Account.findOneAndUpdate(
+            { _id: id, user: user.id },
             data,
             { new: true }
         )
+        if (!accountUpdate) return res.status(404).send({ msg: 'The account does not exist or you are not allowed to update it' })
 
         return res.status(200).send({ msg: 'The account has been successfully updated', accountUpdate })
     } catch (error) {
