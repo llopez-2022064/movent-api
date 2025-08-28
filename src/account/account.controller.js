@@ -6,7 +6,7 @@ export const addAccount = async (req, res) => {
         let data = req.body
         let user = req.user
 
-        let existsAccountName = await Account.findOne({ name: data.name, _id: { $ne: id } })
+        let existsAccountName = await Account.findOne({ name: data.name })
         if (existsAccountName) return res.status(400).send({ msg: 'There is already an account with that name' })
 
         let accounts = await Account.find({ user: user.id })
