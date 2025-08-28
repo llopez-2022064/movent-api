@@ -38,9 +38,7 @@ export const checkPassword = async (password, hash) => {
 }
 
 export const isNumber = (quantity) => {
-    try {
-        if (quantity === undefined || quantity === null || quantity === "") return true
-        
+    try {        
         let regex = /^[+]?\d+(\.\d+)?$/
         return regex.test(quantity)
     } catch (error) {
