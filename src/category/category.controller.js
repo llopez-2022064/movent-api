@@ -34,16 +34,18 @@ export const updateCategory = async (req, res) => {
         if (!category) return res.status(404).send({ msg: 'Category not found' })
 
         let { valid, field } = validateFieldIsEmpty(data, ['name'])
-        if (!valid) return res.status(400).send({ msg: '${field} is required' })
+        if (!valid) return res.status(400).send({ msg: `${field} is required` })
 
         let existsCategory = await Category.findOne({ name: data.name, user: userId, _id: { $ne: id } })
         if (existsCategory) return res.status(400).send({ msg: 'There is already a category with the same name' })
 
         let categoryUpdate = await Category.findOneAndUpdate(
-            { _id: id },
+            { _id: id, user: userId },
             data,
             { new: true }
         )
+
+        if (!categoryUpdate) return res.status(404).send({ msg: 'Category not found or you are not allowed to update it' })
 
         return res.status(200).send({ msg: categoryUpdate })
     } catch (error) {
