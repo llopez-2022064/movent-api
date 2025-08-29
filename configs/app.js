@@ -7,6 +7,7 @@ import userRoutes from '../src/user/user.routes.js'
 import authRoutes from '../src/auth/auth.routes.js'
 import categoryRoutes from '../src/category/category.routes.js'
 import accountRoutes from '../src/account/account.routes.js'
+import expenseRoutes from '../src/expense/expense.routes.js'
 
 const app = express()
 config()
@@ -22,6 +23,7 @@ app.use('/api/v1/auth', authRoutes)
 app.use('/api/v1/users', userRoutes)
 app.use('/api/v1/categories', categoryRoutes)
 app.use('/api/v1/accounts', accountRoutes)
+app.use('/api/v1/expenses', expenseRoutes)
 
 export const initServer = () => {
     app.listen(port, () => {
