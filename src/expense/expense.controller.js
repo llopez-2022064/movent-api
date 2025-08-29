@@ -109,3 +109,30 @@ export const editExpense = async (req, res) => {
         return res.status(500).send({ msg: 'Error when editing the expense' })
     }
 }
+
+export const deleteExpense = async (req, res) => {
+    try {
+        let { id } = req.params
+        let user = req.user
+
+        let expense = await Expense.findOne({ _id: id, user: user.id })
+        if (!expense) return res.status(404).send({ msg: 'Expense not found' })
+
+        let account = await Account.findOne({ _id: expense.account, user: user.id })
+        if (account) {
+            account.openingBalance += expense.amount
+            await account.save()
+        }
+
+        await Expense.deleteOne({ _id: id, user: user.id })
+
+        return res.status(200).send({
+            msg: 'Expense successfully deleted',
+            deletedExpense: expense,
+            updatedAccount: account
+        })
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send({ msg: 'Error deleting an expense' })
+    }
+}
