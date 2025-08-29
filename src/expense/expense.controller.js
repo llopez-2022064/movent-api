@@ -44,37 +44,55 @@ export const editExpense = async (req, res) => {
         let expense = await Expense.findOne({ _id: id, user: user.id })
         if (!expense) return res.status(404).send({ msg: 'Expense not found' })
 
+        if (data.amount <= 0) return res.status(400).send({ msg: 'The amount must be greater than zero' })
+
         let { valid, field } = validateFieldIsEmpty(data, ['name', 'amount', 'account'])
         if (!valid) return res.status(400).send({ msg: `${field} is required` })
 
-        if (data.amount <= 0) return res.status(400).send({ msg: 'The amount must be greater than zero' })
         if (data.amount !== undefined && !isNumber(data.amount)) {
             return res.status(400).send({ msg: 'The amount entered is incorrect.' })
         }
 
-        let newAccount = await Account.findOne({ _id: data.account, user: user.id })
-        if (!newAccount) return res.status(404).send({ msg: 'Account not found' })
+        let previousAccount = null
+        let newAccount = null
 
         //Devolver saldo a la cuenta anterior
-        let previousAccount = await Account.findOne({ _id: expense.account, user: user.id })
+        previousAccount = await Account.findOne({ _id: expense.account, user: user.id })
         if (previousAccount) {
             previousAccount.openingBalance += expense.amount
             await previousAccount.save()
         }
 
-        if (newAccount.openingBalance < data.amount) {
-            return res.status(400).send({ msg: 'Insufficient balance in account' })
-        }
+        if (data.account && data.account !== String(expense.account)) {
+            newAccount = await Account.findOne({ _id: data.account, user: user.id })
+            if (!newAccount) return res.status(404).send({ msg: 'Account not found' })
 
-        //Descontar de la nueva cuenta
-        newAccount.openingBalance -= data.amount
-        await newAccount.save()
+            if (newAccount.openingBalance < data.amount) {
+                return res.status(400).send({ msg: 'Insufficient balance in account' })
+            }
+
+            //Descontar de la nueva cuenta
+            if (data.amount !== undefined) {
+                newAccount.openingBalance -= data.amount
+                await newAccount.save()
+            }
+        } else {
+            newAccount = previousAccount
+            if (data.amount !== undefined) {
+                if (newAccount.openingBalance < data.amount) {
+                    return res.status(400).send({ msg: 'Insufficient balance in account' })
+                }
+                newAccount.openingBalance -= data.amount
+                await newAccount.save()
+            }
+        }
 
         let expenseUpdate = await Expense.findByIdAndUpdate(
             { _id: id },
             data,
             { new: true }
-        )
+        ).populate('user', 'name lastName email')
+            .populate('account', 'name openingBalance category')
 
         if (!expenseUpdate) return res.status(404).send({ msg: 'Expense not found and not updated' })
 
