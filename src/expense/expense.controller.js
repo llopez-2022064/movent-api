@@ -136,3 +136,18 @@ export const deleteExpense = async (req, res) => {
         return res.status(500).send({ msg: 'Error deleting an expense' })
     }
 }
+
+export const getExpenses = async (req, res) => {
+    try {
+        let user = req.user
+
+        let expenses = await Expense.find({ user: user.id }).populate('user', 'name lastName')
+            .populate('account', 'name openingBalance category')
+        if (expenses.length === 0) return res.status(404).send({ msg: 'There are currently no expenses' })
+
+        return res.status(200).send({ expenses })
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send
+    }
+}
