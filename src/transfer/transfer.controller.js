@@ -47,3 +47,48 @@ export const createTransfer = async (req, res) => {
         return res.status(500).send({ msg: 'Error creating a transfer' })
     }
 }
+
+export const editTransfer = async (req, res) => {
+    try {
+        let { id } = req.params
+        let data = req.body
+        let user = req.user
+
+        let transfer = await Transfer.findOne({ _id: id, user: user.id })
+        if (!transfer) return res.status(404).send({ msg: 'Transfer not found' })
+
+        let { valid, field } = validateFieldIsEmpty(data, ['description'])
+        if (!valid) return res.status(400).send({ msg: `${field} is required` })
+
+        const allowedFields = ['description'];
+        let updateData = {};
+        let invalidFields = [];
+
+        Object.keys(data).forEach(field => {
+            if (allowedFields.includes(field)) {
+                updateData[field] = data[field]
+            } else {
+                invalidFields.push(field)
+            }
+        })
+
+        if (Object.keys(updateData).length === 0) {
+            return res.status(400).send({
+                msg: 'No valid fields to update',
+                invalidFields
+            })
+        }
+
+        let transferUpdate = await Transfer.findOneAndUpdate(
+            { _id: id, user: user.id },
+            updateData,
+            { new: true }
+        )
+        if (!transferUpdate) return res.status(409).send({ msg: 'The transfer could not be updated.' })
+
+        return res.status(200).send({ msg: 'Transfer successfully updated', transferUpdate })
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send({ msg: 'Error editing transfer details' })
+    }
+}
