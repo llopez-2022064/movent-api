@@ -16,7 +16,7 @@ export const createTransfer = async (req, res) => {
         let { valid, field } = validateFieldIsEmpty(data, ['sourceAccount', 'destinationAccount', 'amount'])
         if (!valid) return res.status(400).send({ msg: `${field} is required` })
 
-        let sourceAccount = await Account.findOne({ _id: data.sourceAccount }).populate('user', 'name openingBalance category')
+        let sourceAccount = await Account.findOne({ _id: data.sourceAccount, user: user.id }).populate('user', 'name openingBalance category')
         if (!sourceAccount) return res.status(404).send({ msg: 'The source account does not exist' })
 
         let destinationAccount = await Account.findOne({ _id: data.destinationAccount, user: user.id })
