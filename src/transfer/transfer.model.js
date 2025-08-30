@@ -16,6 +16,11 @@ const transferSchema = new Schema({
     description: {
         type: String,
         required: false
+    },
+    user: {
+        type: Schema.ObjectId,
+        ref: 'user',
+        required: true
     }
 }, {
     versionKey: false,

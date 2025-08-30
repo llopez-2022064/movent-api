@@ -32,7 +32,7 @@ export const createTransfer = async (req, res) => {
         destinationAccount.openingBalance += data.amount
         await destinationAccount.save()
 
-        let transfer = new Transfer(data)
+        let transfer = new Transfer({ ...data, user: user.id })
         await transfer.save()
 
         return res.status(200).send({
