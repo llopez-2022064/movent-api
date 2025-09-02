@@ -90,3 +90,22 @@ export const getAccounts = async (req, res) => {
         return res.status(500).send({ msg: 'Error retrieving accounts' })
     }
 }
+
+export const geTotalBalance = async (req, res) => {
+    try {
+        let user = req.user
+        let total = 0
+
+        let accounts = await Account.find({ user: user.id })
+        if (!accounts) return res.status(200).send([])
+
+        for (let account of accounts) {
+            total += account.openingBalance
+        }
+
+        return res.status(200).send({ total })
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send({ msg: 'Error obtaining total balance' })
+    }
+}
