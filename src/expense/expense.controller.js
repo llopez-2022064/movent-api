@@ -1,6 +1,7 @@
 import User from '../user/user.model.js'
 import Expense from './expense.model.js'
 import Account from '../account/account.model.js'
+import Category from '../category/category.model.js'
 import { isNumber, validateFieldIsEmpty } from '../utils/validator.js'
 
 export const createExpense = async (req, res) => {
@@ -16,6 +17,9 @@ export const createExpense = async (req, res) => {
         }
 
         if (data.amount <= 0) return res.status(400).send({ msg: 'The amount must be greater than zero.' })
+
+        let category = await Category.findOne({ _id: data.category, user: user.id })
+        if (!category) return res.status(404).send({ msg: 'category not found' })
 
         let account = await Account.findOne({ _id: data.account, user: user.id })
         if (!account) return res.status(404).send({ msg: 'Account not found' })
