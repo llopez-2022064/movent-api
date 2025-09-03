@@ -8,6 +8,11 @@ const expenseSchema = new Schema({
     description: {
         type: String
     },
+    category: {
+        type: Schema.ObjectId,
+        ref: 'category',
+        required: true
+    },
     amount: {
         type: Number,
         required: true
@@ -22,8 +27,9 @@ const expenseSchema = new Schema({
         ref: 'user',
         required: true
     }
-},{
-    versionKey: false
+}, {
+    versionKey: false,
+    timestamps: true
 })
 
 export default model('expense', expenseSchema)
