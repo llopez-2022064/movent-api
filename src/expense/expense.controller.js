@@ -1,14 +1,16 @@
 import User from '../user/user.model.js'
 import Expense from './expense.model.js'
 import Account from '../account/account.model.js'
+import Category from '../category/category.model.js'
 import { isNumber, validateFieldIsEmpty } from '../utils/validator.js'
+import dayjs from 'dayjs'
 
 export const createExpense = async (req, res) => {
     try {
         let data = req.body
         let user = req.user
 
-        let { valid, field } = validateFieldIsEmpty(data, ['name', 'amount', 'account'])
+        let { valid, field } = validateFieldIsEmpty(data, ['name', 'amount', 'account', 'category'])
         if (!valid) return res.status(400).send({ msg: `${field} is required` })
 
         if (data.amount !== undefined && !isNumber(data.amount)) {
@@ -16,6 +18,9 @@ export const createExpense = async (req, res) => {
         }
 
         if (data.amount <= 0) return res.status(400).send({ msg: 'The amount must be greater than zero.' })
+
+        let category = await Category.findOne({ _id: data.category, user: user.id })
+        if (!category) return res.status(404).send({ msg: 'Category not found' })
 
         let account = await Account.findOne({ _id: data.account, user: user.id })
         if (!account) return res.status(404).send({ msg: 'Account not found' })
@@ -46,12 +51,15 @@ export const editExpense = async (req, res) => {
 
         if (data.amount <= 0) return res.status(400).send({ msg: 'The amount must be greater than zero' })
 
-        let { valid, field } = validateFieldIsEmpty(data, ['name', 'amount', 'account'])
+        let { valid, field } = validateFieldIsEmpty(data, ['name', 'amount', 'account', 'category'])
         if (!valid) return res.status(400).send({ msg: `${field} is required` })
 
         if (data.amount !== undefined && !isNumber(data.amount)) {
             return res.status(400).send({ msg: 'The amount entered is incorrect.' })
         }
+
+        let category = await Category.findOne({ _id: data.category, user: user.id })
+        if (!category) return res.status(404).send({ msg: 'Category not found' })
 
         let previousAccount = null
         let newAccount = null
@@ -141,11 +149,19 @@ export const getExpenses = async (req, res) => {
     try {
         let user = req.user
 
-        let expenses = await Expense.find({ user: user.id }).populate('user', 'name lastName')
+        let expenses = await Expense.find({ user: user.id })
+            .populate('user', 'name lastName')
             .populate('account', 'name openingBalance category')
+            .populate('category', 'name')
         if (expenses.length === 0) return res.status(404).send({ msg: 'There are currently no expenses' })
 
-        return res.status(200).send({ expenses })
+        const formattedExpenses = expenses.map(exp => ({
+            ...exp.toObject(),
+            createdAt: dayjs(exp.createdAt).format('DD/MM/YYYY HH:mm'),
+            updatedAt: dayjs(exp.updatedAt).format("DD/MM/YYYY HH:mm")
+        }))
+
+        return res.status(200).send({ formattedExpenses })
     } catch (error) {
         console.error(error)
         return res.status(500).send
