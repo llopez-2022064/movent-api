@@ -19,7 +19,7 @@ app.use(express.json())
 app.use(cors({
     origin: [
         "https://movent.netlify.app",
-        "http://localhost:2880"
+        "http://localhost:5173",
     ],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
