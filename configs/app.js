@@ -9,6 +9,7 @@ import categoryRoutes from '../src/category/category.routes.js'
 import accountRoutes from '../src/account/account.routes.js'
 import expenseRoutes from '../src/expense/expense.routes.js'
 import transfersRoutes from '../src/transfer/transfer.routes.js'
+import incomeRoutes from '../src/income/income.routes.js'
 
 const app = express()
 config()
@@ -21,7 +22,7 @@ app.use(cors({
         "https://movent.netlify.app",
         "http://localhost:5173",
     ],
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PATCH", "PUT", "DELETE"],
     credentials: true
 }))
 app.use(helmet())
@@ -33,6 +34,7 @@ app.use('/api/v1/categories', categoryRoutes)
 app.use('/api/v1/accounts', accountRoutes)
 app.use('/api/v1/expenses', expenseRoutes)
 app.use('/api/v1/transfers', transfersRoutes)
+app.use('/api/v1/income', incomeRoutes)
 
 export const initServer = () => {
     app.listen(port, () => {
