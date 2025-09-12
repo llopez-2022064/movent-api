@@ -21,7 +21,7 @@ app.use(cors({
         "https://movent.netlify.app",
         "http://localhost:5173",
     ],
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PATCH", "PUT", "DELETE"],
     credentials: true
 }))
 app.use(helmet())
