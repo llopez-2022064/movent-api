@@ -164,6 +164,24 @@ export const getExpenses = async (req, res) => {
         return res.status(200).send({ formattedExpenses })
     } catch (error) {
         console.error(error)
-        return res.status(500).send
+        return res.status(500).send({ msg: 'Error retrieving all expenses' })
+    }
+}
+
+export const getNExpenses = async (req, res) => {
+    try {
+        let { quantity } = req.params
+        quantity = parseInt(quantity)
+
+        if (!isNumber(quantity) || quantity <= 0) {
+            return res.status(400).send({ msg: 'The amount entered is incorrect.' })
+        }
+
+        const expenses = await Expense.find().limit(quantity)
+
+        return res.status(200).send({ expenses })
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send({ msg: 'Error retrieving expenses' })
     }
 }
