@@ -177,7 +177,7 @@ export const getNExpenses = async (req, res) => {
             return res.status(400).send({ msg: 'The amount entered is incorrect.' })
         }
 
-        const expenses = await Expense.find().limit(quantity)
+        const expenses = await Expense.find().limit(quantity).sort({ createdAt: -1 })
 
         return res.status(200).send({ expenses })
     } catch (error) {
