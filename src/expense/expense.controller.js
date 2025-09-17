@@ -164,6 +164,6 @@ export const getExpenses = async (req, res) => {
         return res.status(200).send({ formattedExpenses })
     } catch (error) {
         console.error(error)
-        return res.status(500).send
+        return res.status(500).send({ msg: 'Error retrieving all expenses' })
     }
 }
