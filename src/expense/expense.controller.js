@@ -164,6 +164,45 @@ export const getExpenses = async (req, res) => {
         return res.status(200).send({ formattedExpenses })
     } catch (error) {
         console.error(error)
-        return res.status(500).send
+        return res.status(500).send({ msg: 'Error retrieving all expenses' })
+    }
+}
+
+export const getNExpenses = async (req, res) => {
+    try {
+        let { quantity } = req.params
+        quantity = parseInt(quantity)
+
+        if (!isNumber(quantity) || quantity <= 0) {
+            return res.status(400).send({ msg: 'The amount entered is incorrect.' })
+        }
+
+        const expenses = await Expense.find().limit(quantity).sort({ createdAt: -1 })
+
+        return res.status(200).send({ expenses })
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send({ msg: 'Error retrieving expenses' })
+    }
+}
+
+export const getMonthlyExpeses = async (req, res) => {
+    try {
+        const user = req.user
+
+        const startOfMonth = dayjs().startOf("month").toDate()
+        const endOfMonth = dayjs().endOf("month").toDate()
+
+        const expenses = await Expense.find({
+            user: user.id,
+            createdAt: { $gte: startOfMonth, $lte: endOfMonth }
+        })
+
+        const totalExpenses = expenses.reduce((acc, e) => acc + e.amount, 0)
+
+        return res.status(200).send({ totalExpenses })
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send({ msg: "Server error" });
     }
 }
