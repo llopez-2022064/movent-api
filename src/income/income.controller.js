@@ -1,6 +1,7 @@
 import Income from './income.model.js'
 import Account from '../account/account.model.js'
 import { isNumber, validateFieldIsEmpty } from '../utils/validator.js'
+import dayjs from 'dayjs'
 
 export const addIncome = async (req, res) => {
     try {
@@ -28,5 +29,27 @@ export const addIncome = async (req, res) => {
     } catch (error) {
         console.error(error)
         return res.status(500).send({ msg: 'Error entering income' })
+    }
+}
+
+export const getIncomes = async (req, res) => {
+    try {
+        let user = req.user
+        let incomes = await Income.find({ user: user.id })
+            .populate('account', 'name openingBalance category')
+            .populate('user', 'name lastName')
+
+        if (!incomes.length) return res.status(404).send({ msg: 'No incomes found' })
+
+        const formattedIncomes = incomes.map(inc => ({
+            ...inc.toObject(),
+            createdAt: dayjs(inc.createdAt).format('DD/MM/YYYY HH:mm'),
+            updatedAt: dayjs(inc.updatedAt).format('DD/MM/YYYY HH:mm')
+        }))
+
+        return res.status(200).send({ formattedIncomes })
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send({ msg: 'Error getting incomes' })
     }
 }
