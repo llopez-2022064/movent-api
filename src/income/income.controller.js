@@ -53,3 +53,26 @@ export const getIncomes = async (req, res) => {
         return res.status(500).send({ msg: 'Error getting incomes' })
     }
 }
+
+export const deleteIncome = async (req, res) => {
+    try {
+        let user = req.user
+        let { id } = req.params
+
+        let income = await Income.findOne({ _id: id, user: user.id })
+        if (!income) return res.status(404).send({ msg: 'Income not found' })
+
+        let account = await Account.findOne({ _id: income.account, user: user.id })
+        if (!account) return res.status(404).send({ msg: 'Account not found' })
+
+        account.openingBalance -= income.amount
+        await account.save()
+
+        let deletedIncome = await Income.findByIdAndDelete(id)
+
+        return res.status(200).send({ msg: 'Income deleted successfully', deletedIncome })
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send({ msg: 'Error deleting income' })
+    }
+}
