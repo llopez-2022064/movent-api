@@ -32,6 +32,55 @@ export const addIncome = async (req, res) => {
     }
 }
 
+export const updateIncome = async (req, res) => {
+    try {
+        let user = req.user
+        let { id } = req.params
+        let data = req.body
+
+        if (data.amount !== undefined && !isNumber(data.amount)) {
+            return res.status(400).send({ msg: 'The amount is incorrect.' })
+        }
+
+        let income = await Income.findOne({ _id: id, user: user.id })
+        if (!income) return res.status(404).send({ msg: 'Income not found' })
+
+        let oldAccount = await Account.findOne({ _id: income.account, user: user.id })
+        if (!oldAccount) return res.status(400).send({ msg: 'Old account not found' })
+
+        let newAccountId = data.account || income.account
+        let newAmount = data.amount !== undefined ? data.amount : income.amount
+
+        if (String(oldAccount._id) !== String(newAccountId)) {
+            // Cambio de cuenta
+            oldAccount.openingBalance -= income.amount
+            await oldAccount.save()
+
+            let newAccount = await Account.findOne({ _id: newAccountId, user: user.id })
+            if (!newAccount) return res.status(400).send({ msg: 'New account not found' })
+
+            newAccount.openingBalance += newAmount
+            await newAccount.save()
+        } else if (income.amount !== newAmount) {
+            // Misma cuenta, pero cambio el monto
+            let difference = newAmount - income.amount
+            oldAccount.openingBalance += difference
+            await oldAccount.save()
+        }
+
+        let updatedIncome = await Income.findOneAndUpdate(
+            { _id: id, user: user.id },
+            data,
+            { new: true }
+        )
+
+        return res.status(200).send({ msg: 'Income updated successfully', updatedIncome })
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send({ msg: 'Error updating income' })
+    }
+}
+
 export const getIncomes = async (req, res) => {
     try {
         let user = req.user
