@@ -125,3 +125,24 @@ export const deleteIncome = async (req, res) => {
         return res.status(500).send({ msg: 'Error deleting income' })
     }
 }
+
+export const getMonthlyIncome = async (req, res) => {
+    try {
+        let user = req.user
+
+        const startOfMonth = dayjs().startOf("month").toDate()
+        const endOfMonth = dayjs().endOf("month").toDate()
+
+        let incomes = await Income.find({
+            user: user.id,
+            createdAt: { $gte: startOfMonth, $lte: endOfMonth }
+        })
+
+        const totalIncomes = incomes.reduce((inc, e) => inc += e.amount, 0)
+
+        return res.status(200).send({ totalIncomes })
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send({ msg: 'Server Error' })
+    }
+}
