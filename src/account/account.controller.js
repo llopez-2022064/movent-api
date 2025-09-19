@@ -109,3 +109,19 @@ export const geTotalBalance = async (req, res) => {
         return res.status(500).send({ msg: 'Error obtaining total balance' })
     }
 }
+
+export const getTotalSavingsAccounts = async (req, res) => {
+    try {
+        let user = req.user
+
+        let savingsAccounts = await Account.find({ user: user.id, category: 'Ahorro' })
+        if (savingsAccounts.length === 0) return res.status(404).send({ msg: "you don't have any savings accounts" })
+
+        let result = savingsAccounts.reduce((acc, account) => acc += account.openingBalance, 0)
+
+        return res.status(200).send(result)
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send({ msg: 'Server Error' })
+    }
+}
