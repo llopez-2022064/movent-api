@@ -153,10 +153,11 @@ export const getExpenses = async (req, res) => {
             .populate('user', 'name lastName')
             .populate('account', 'name openingBalance category')
             .populate('category', 'name')
+            .lean()
         if (expenses.length === 0) return res.status(404).send({ msg: 'There are currently no expenses' })
 
         const formattedExpenses = expenses.map(exp => ({
-            ...exp.toObject(),
+            ...exp,
             createdAt: dayjs(exp.createdAt).format('DD/MM/YYYY HH:mm'),
             updatedAt: dayjs(exp.updatedAt).format("DD/MM/YYYY HH:mm")
         }))
@@ -177,7 +178,18 @@ export const getNExpenses = async (req, res) => {
             return res.status(400).send({ msg: 'The amount entered is incorrect.' })
         }
 
-        const expenses = await Expense.find().limit(quantity).sort({ createdAt: -1 })
+        const expensesFind = await Expense.find()
+            .limit(quantity)
+            .sort({ createdAt: -1 })
+            .populate('category', 'name')
+            .populate('account', 'name')
+            .lean()
+
+        const expenses = expensesFind.map((exp) => ({
+            ...exp,
+            createdAt: dayjs(exp.createdAt).format("DD/MM/YYYY"),
+            updatedAt: dayjs(exp.updatedAt).format("DD/MM/YYYY")
+        }))
 
         return res.status(200).send({ expenses })
     } catch (error) {
