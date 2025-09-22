@@ -154,7 +154,6 @@ export const getExpenses = async (req, res) => {
             .populate('account', 'name openingBalance category')
             .populate('category', 'name')
             .lean()
-        if (expenses.length === 0) return res.status(404).send({ msg: 'There are currently no expenses' })
 
         const formattedExpenses = expenses.map(exp => ({
             ...exp,
