@@ -6,7 +6,7 @@ export const addAccount = async (req, res) => {
         let data = req.body
         let user = req.user
 
-        let existsAccountName = await Account.findOne({ name: data.name })
+        let existsAccountName = await Account.findOne({ name: data.name, user: user.id })
         if (existsAccountName) return res.status(400).send({ msg: 'There is already an account with that name' })
 
         let accounts = await Account.find({ user: user.id })
@@ -38,7 +38,7 @@ export const updateAccount = async (req, res) => {
         let account = await Account.findOne({ _id: id })
         if (!account) return res.status(404).send({ msg: 'The account does not exist' })
 
-        let existsAccountName = await Account.findOne({ name: data.name, _id: { $ne: id } })
+        let existsAccountName = await Account.findOne({ name: data.name, user: user.id, _id: { $ne: id } })
         if (existsAccountName) return res.status(400).send({ msg: 'There is already an account with that name' })
 
         if (data.openingBalance !== undefined && !isNumber(data.openingBalance)) {
