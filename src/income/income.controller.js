@@ -14,6 +14,7 @@ export const addIncome = async (req, res) => {
         let account = await Account.findOne({ _id: data.account, user: user.id })
         if (!account) return res.status(400).send({ msg: 'Account not found' })
 
+        data.amount = Number(data.amount)
         if (!isNumber(data.amount)) return res.status(400).send({ msg: 'The amount is incorrect.' })
 
         account.openingBalance += data.amount
@@ -38,8 +39,11 @@ export const updateIncome = async (req, res) => {
         let { id } = req.params
         let data = req.body
 
-        if (data.amount !== undefined && !isNumber(data.amount)) {
-            return res.status(400).send({ msg: 'The amount is incorrect.' })
+        if (data.amount !== undefined) {
+            data.amount = Number(data.amount)
+            if (!isNumber(data.amount)) {
+                return res.status(400).send({ msg: 'The amount is incorrect.' })
+            }
         }
 
         let income = await Income.findOne({ _id: id, user: user.id })
