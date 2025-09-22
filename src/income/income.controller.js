@@ -88,8 +88,6 @@ export const getIncomes = async (req, res) => {
             .populate('account', 'name openingBalance category')
             .populate('user', 'name lastName')
 
-        if (!incomes.length) return res.status(404).send({ msg: 'No incomes found' })
-
         const formattedIncomes = incomes.map(inc => ({
             ...inc.toObject(),
             createdAt: dayjs(inc.createdAt).format('DD/MM/YYYY HH:mm'),
