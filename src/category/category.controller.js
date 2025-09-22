@@ -59,7 +59,6 @@ export const getCategories = async (req, res) => {
         let user = req.user
 
         let categories = await Category.find({ user: user.id }).populate('user', 'name email')
-        if (categories.length === 0) return res.status(404).send({ msg: 'There are no categories' })
 
         return res.status(200).send({ categories })
     } catch (error) {

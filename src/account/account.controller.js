@@ -67,7 +67,7 @@ export const deleteAccount = async (req, res) => {
         let { id } = req.params
         let user = req.user
 
-        let account = await Account.findOneAndDelete({ _id: id, user: req.user.id })
+        let account = await Account.findOneAndDelete({ _id: id, user: user.id })
         if (!account) return res.status(404).send({ msg: 'Accoutn not found' })
 
         return res.status(200).send({ msg: 'Account successfully deleted' })
@@ -82,7 +82,6 @@ export const getAccounts = async (req, res) => {
         let user = req.user
 
         let accounts = await Account.find({ user: user.id })
-        if (accounts.length == 0) return res.status(404).send({ msg: 'There are no accounts' })
 
         return res.status(200).send({ accounts })
     } catch (error) {
@@ -97,7 +96,6 @@ export const geTotalBalance = async (req, res) => {
         let total = 0
 
         let accounts = await Account.find({ user: user.id })
-        if (!accounts) return res.status(200).send([])
 
         for (let account of accounts) {
             total += account.openingBalance
@@ -115,11 +113,10 @@ export const getTotalSavingsAccounts = async (req, res) => {
         let user = req.user
 
         let savingsAccounts = await Account.find({ user: user.id, category: 'Ahorro' })
-        if (savingsAccounts.length === 0) return res.status(404).send({ msg: "you don't have any savings accounts" })
 
-        let result = savingsAccounts.reduce((acc, account) => acc += account.openingBalance, 0)
+        let total = savingsAccounts.reduce((acc, account) => acc += account.openingBalance, 0)
 
-        return res.status(200).send(result)
+        return res.status(200).send(total)
     } catch (error) {
         console.error(error)
         return res.status(500).send({ msg: 'Server Error' })
