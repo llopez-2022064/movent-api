@@ -7,6 +7,7 @@ export const createTransfer = async (req, res) => {
         let data = req.body
         let user = req.user
 
+        data.amount = Number(data.amount)
         if (data.amount !== undefined && !isNumber(data.amount)) {
             return res.status(400).send({ msg: 'The amount entered is incorrect.' })
         }
