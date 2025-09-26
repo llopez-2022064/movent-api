@@ -3,11 +3,13 @@ import { Schema, model } from "mongoose";
 const transferSchema = new Schema({
     sourceAccount: {
         type: Schema.ObjectId,
-        required: true
+        required: true,
+        ref: 'account'
     },
     destinationAccount: {
         type: Schema.ObjectId,
-        required: true
+        required: true,
+        ref: 'account'
     },
     amount: {
         type: Number,
