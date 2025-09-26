@@ -1,6 +1,7 @@
 import Transfer from './transfer.model.js'
 import Account from '../account/account.model.js'
 import { validateFieldIsEmpty, isNumber } from '../utils/validator.js'
+import dayjs from 'dayjs'
 
 export const createTransfer = async (req, res) => {
     try {
@@ -91,5 +92,27 @@ export const editTransfer = async (req, res) => {
     } catch (error) {
         console.error(error)
         return res.status(500).send({ msg: 'Error editing transfer details' })
+    }
+}
+
+export const getTransfers = async (req, res) => {
+    try {
+        let user = req.user
+
+        let transfers = await Transfer.find({ user: user.id })
+            .populate('sourceAccount', 'name')
+            .populate('destinationAccount', 'name')
+            .lean()
+
+        const formattedTransfers = transfers.map((trans) => ({
+            ...trans,
+            createdAt: dayjs(trans.createdAt).format('DD/MM/YYYY'),
+            updatedAt: dayjs(trans.updatedAt).format('DD/MM/YYYY')
+        }))
+
+        return res.status(200).send({ formattedTransfers })
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send({ msg: 'Server Error' })
     }
 }
